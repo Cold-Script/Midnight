@@ -1,5 +1,3 @@
--- Version: 1.0-alpha
-
 --[[
     Credits:
     - Violin Suzutsuk: Linoria Cursor
@@ -202,6 +200,7 @@ function Midnight.CreateWindow(options: WindowOptions)
         Parent = Top
     })
 
+    --// Title \\--
     local Title = Create("TextLabel", {
         BackgroundTransparency = 1,
         FontFace = titleFont,
@@ -303,6 +302,7 @@ function Midnight.CreateWindow(options: WindowOptions)
             Parent = Top
         })
     
+        --// Tab Title \\--
         local Title = Create("TextLabel", {
             BackgroundTransparency = 1,
             FontFace = tabFont,
@@ -865,6 +865,9 @@ function Midnight.CreateWindow(options: WindowOptions)
                 function Slider.Set(newValue: number)
                     local oldValue = Slider.Value
                     Slider.Value = math.floor(math.clamp(Round(newValue, Slider.Increment), Slider.Min, Slider.Max) * (100 * Slider.Max)) / (100 * Slider.Max)
+                    if options.Flag then
+                        Midnight.Flags[options.Flag] = Slider.Value
+                    end
 
                     SliderValue.Text = tostring(Slider.Value)
                     SliderFillBar.Size = UDim2.fromScale((Slider.Value - Slider.Min) / (Slider.Max - Slider.Min), 1)
