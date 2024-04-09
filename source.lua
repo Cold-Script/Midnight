@@ -1,7 +1,5 @@
 -- Version: 1.0-alpha
 
--- Version (1.0-beta)
-
 --[[
     Credits:
     - Violin Suzutsuk: Linoria Cursor
