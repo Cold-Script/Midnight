@@ -238,10 +238,7 @@ function GetKeybindFromString(string)
 end
 
 local function CheckSaveFolder()
-    if Midnight.SaveFolder == nil or Midnight.SaveName == nil then
-        Midnight:Notify("Save Tree | Folder or Name is nil")
-        return false
-    end
+    if Midnight.SaveFolder == nil or Midnight.SaveName == nil then return false end
 
     if not isfolder(Midnight.SaveFolder) then
         makefolder(Midnight.SaveFolder)
@@ -3178,6 +3175,7 @@ function Midnight:Unload()
         Midnight.OnUnload()
     end
 end
+
 
 
 return Midnight
