@@ -1295,7 +1295,9 @@ local BaseComponents = {}  do
                     end
                 end
             else
-                Dropdown.Value = nil
+                if not table.find(Dropdown.Values, Dropdown.Value) then
+                    Dropdown.Value = nil
+                end
             end  
 
             for _, value in pairs(Dropdown.Values) do
@@ -2714,7 +2716,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 Parent = ButtonFrame
             })
 
-            --// Element Button Table \\--
+            --// Element Toggle Table \\--
             local ElementToggle = {
                 Container = Components,
                 Hovering = false,
@@ -2785,7 +2787,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 ElementHolder.Size = ElementToggle.Opened and UDim2.new(1, 0, 0, ComponentsListLayout.AbsoluteContentSize.Y + 36) or UDim2.new(1, 0, 0, 36)
             end
 
-            --// Element Button Connections \\--
+            --// Element Toggle Connections \\--
             do
                 if options.Flag then
                     Midnight.Flags[options.Flag] = ElementToggle
@@ -3175,7 +3177,6 @@ function Midnight:Unload()
         Midnight.OnUnload()
     end
 end
-
 
 
 return Midnight
