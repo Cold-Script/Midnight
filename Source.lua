@@ -56,7 +56,7 @@ export type ElementButtonOptions = {
 export type ElementToggleOptions = {
     Name: string,
     Flag: string,
-    Enabled: boolean,
+    Value: boolean,
     Keybind: Enum.KeyCode | Enum.UserInputType,
     Mode: "Hold" | "Toggle",
     Callback: (NewValue: boolean, OldValue: boolean) -> ()
@@ -71,7 +71,7 @@ export type ButtonOptions = {
 export type ToggleOptions = {
     Name: string,
     Flag: string,
-    Enabled: boolean,
+    Value: boolean,
     Callback: (NewValue: boolean, OldValue: boolean) -> ()
 }
 
@@ -147,11 +147,11 @@ local keyCodesName = {
 local parser = {
     ElementToggle = {
         Save = function(data)
-            return { Type = "ElementToggle", Enabled = data.Enabled, Keybind = tostring(data.Keybind), Mode = data.Mode }
+            return { Type = "ElementToggle", Value = data.Value, Keybind = tostring(data.Keybind), Mode = data.Mode }
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Enabled)
+                Midnight.Flags[flag]:Set(data.Value)
                 Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
                 Midnight.Flags[flag].Mode = data.Mode
             end
@@ -159,11 +159,11 @@ local parser = {
     },
     Toggle = {
         Save = function(data)
-            return { Type = "Toggle", Enabled = data.Enabled }
+            return { Type = "Toggle", Value = data.Value }
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Enabled)
+                Midnight.Flags[flag]:Set(data.Value)
             end
         end
     },
@@ -748,13 +748,13 @@ local BaseComponents = {}  do
             Hovering = false,
             Locked = false,
             
-            Enabled = options.Enabled or false,
+            Value = options.Value or false,
 
             Type = "Toggle"
         }
 
         function Toggle:Activate()
-            Toggle:Set(not Toggle.Enabled)
+            Toggle:Set(not Toggle.Value)
         end
 
         function Toggle:SetLocked(locked: boolean)
@@ -768,16 +768,16 @@ local BaseComponents = {}  do
         end
 
         function Toggle:Set(newValue: boolean)
-            local oldEnabled = Toggle.Enabled
-            Toggle.Enabled = newValue
+            local oldValue = Toggle.Value
+            Toggle.Value = newValue
 
-            ToggleIcon.BackgroundColor3 = Toggle.Enabled and enabledToggleColor or (Toggle.Hovering and hoveringToggleColor or defaultToggleColor)
-            ToggleIcon.Position = Toggle.Enabled and UDim2.fromOffset(16, 0) or UDim2.fromOffset(0, 0)
+            ToggleIcon.BackgroundColor3 = Toggle.Value and enabledToggleColor or (Toggle.Hovering and hoveringToggleColor or defaultToggleColor)
+            ToggleIcon.Position = Toggle.Value and UDim2.fromOffset(16, 0) or UDim2.fromOffset(0, 0)
 
-            ToggleStroke.Color = Toggle.Enabled and enabledToggleColor or (Toggle.Hovering and hoveringToggleColor or defaultToggleColor)
+            ToggleStroke.Color = Toggle.Value and enabledToggleColor or (Toggle.Hovering and hoveringToggleColor or defaultToggleColor)
 
-            if Toggle.Enabled ~= oldEnabled then
-                Midnight:SafeCallback(options.Callback, Toggle.Enabled, oldEnabled)
+            if Toggle.Value ~= oldValue then
+                Midnight:SafeCallback(options.Callback, Toggle.Value, oldValue)
                 
             end
         end
@@ -801,7 +801,7 @@ local BaseComponents = {}  do
             ToggleButton.MouseEnter:Connect(function()
                 Toggle.Hovering = true
 
-                if not Toggle.Enabled and not Toggle.Locked then
+                if not Toggle.Value and not Toggle.Locked then
                     ToggleIcon.BackgroundColor3 = hoveringToggleColor
                     ToggleStroke.Color = hoveringToggleColor
                 end
@@ -810,17 +810,17 @@ local BaseComponents = {}  do
             ToggleButton.MouseLeave:Connect(function()
                 Toggle.Hovering = false
 
-                if not Toggle.Enabled and not Toggle.Locked then
+                if not Toggle.Value and not Toggle.Locked then
                     ToggleIcon.BackgroundColor3 = defaultToggleColor
                     ToggleStroke.Color = defaultToggleColor
                 end
             end)
 
             ToggleButton.MouseButton1Click:Connect(function()
-                task.spawn(Toggle.Activate)
+                Toggle:Set(not Toggle.Value)
             end)
 
-            Toggle:Set(Toggle.Enabled)
+            Toggle:Set(Toggle.Value)
         end
 
         return Toggle
@@ -952,7 +952,6 @@ local BaseComponents = {}  do
 
             if Slider.Value ~= oldValue then
                 Midnight:SafeCallback(options.Callback, Slider.Value, oldValue)
-                
             end
         end
 
@@ -972,9 +971,7 @@ local BaseComponents = {}  do
             end
 
             Slider.Min = newMin
-            if Slider.Value < Slider.Min then
-                Slider:Set(Slider.Min)
-            end
+            Slider:Set(math.clamp(Slider.Value, Slider.Min, Slider.Max))
         end
 
         function Slider:SetMax(newMax: number)
@@ -983,9 +980,7 @@ local BaseComponents = {}  do
             end
 
             Slider.Max = newMax
-            if Slider.Value > Slider.Max then
-                Slider:Set(Slider.Max)
-            end
+            Slider:Set(math.clamp(Slider.Value, Slider.Min, Slider.Max))
         end
 
         do
@@ -2747,7 +2742,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 State = false,
 
                 Name = options.Name or "Toggle",
-                Enabled = options.Enabled or false,
+                Value = options.Value or false,
                 
                 Keybind = options.Keybind or nil,
                 Mode = options.Mode or "Toggle",
@@ -2755,8 +2750,25 @@ function Midnight:CreateWindow(options: WindowOptions)
                 Type = "ElementToggle"
             }
 
-            function ElementToggle:Activate()
-                ElementToggle:Set(not ElementToggle.Enabled)
+            function ElementToggle:Set(newValue: boolean)
+                local oldValue = ElementToggle.Value
+                ElementToggle.Value = newValue
+
+                ButtonFrame.BackgroundColor3 = ElementToggle.Value and Color3.fromRGB(35, 35, 35) or (ElementToggle.Hovering and Color3.fromRGB(30, 30, 30) or Color3.fromRGB(25, 25, 25))
+                ButtonFrame.TextTransparency = ElementToggle.Value and 0 or (ElementToggle.Hovering and 0.25 or 0.5)
+
+                if ElementToggle.Value ~= oldValue then
+                    Midnight:SafeCallback(options.Callback, ElementToggle.Value, oldValue)
+                end
+            end
+
+            function ElementToggle:SetLocked(locked: boolean)
+                ElementToggle.Locked = locked
+
+                if ElementToggle.Hovering then
+                    Icon.Position = ElementToggle.Locked and UDim2.new(1, -7, 0, 8) or UDim2.new(1, -4, 0, 8)
+                    Icon.Image = ElementToggle.Locked and "rbxassetid://7072718362" or "rbxassetid://7072719531"
+                end
             end
 
             function ElementToggle:SetKeybind(keybind: Enum.KeyCode | Enum.UserInputType, picking)                
@@ -2780,27 +2792,6 @@ function Midnight:CreateWindow(options: WindowOptions)
                 KeybindButton.Text = keyText
             end
 
-            function ElementToggle:Set(newValue: boolean)
-                local oldEnabled = ElementToggle.Enabled
-                ElementToggle.Enabled = newValue
-
-                ButtonFrame.BackgroundColor3 = ElementToggle.Enabled and Color3.fromRGB(35, 35, 35) or (ElementToggle.Hovering and Color3.fromRGB(30, 30, 30) or Color3.fromRGB(25, 25, 25))
-                ButtonFrame.TextTransparency = ElementToggle.Enabled and 0 or (ElementToggle.Hovering and 0.25 or 0.5)
-
-                if ElementToggle.Enabled ~= oldEnabled then
-                    Midnight:SafeCallback(options.Callback, ElementToggle.Enabled, oldEnabled)
-                end
-            end
-
-            function ElementToggle:SetLocked(locked: boolean)
-                ElementToggle.Locked = locked
-
-                if ElementToggle.Hovering then
-                    Icon.Position = ElementToggle.Locked and UDim2.new(1, -7, 0, 8) or UDim2.new(1, -4, 0, 8)
-                    Icon.Image = ElementToggle.Locked and "rbxassetid://7072718362" or "rbxassetid://7072719531"
-                end
-            end
-
             function ElementToggle:Toggle()
                 ElementToggle.Opened = not ElementToggle.Opened
 
@@ -2822,7 +2813,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                     Icon.Position = ElementToggle.Locked and UDim2.new(1, -7, 0, 8) or UDim2.new(1, -4, 0, 8)
                     Icon.Image = ElementToggle.Locked and "rbxassetid://7072718362" or "rbxassetid://7072719531"
                     
-                    if not ElementToggle.Enabled and not ElementToggle.Locked then
+                    if not ElementToggle.Value and not ElementToggle.Locked then
                         ButtonFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
                         ButtonFrame.TextTransparency = 0.25
                     end
@@ -2833,14 +2824,14 @@ function Midnight:CreateWindow(options: WindowOptions)
                     Icon.Image = "rbxassetid://7072719531"
                     Icon.Position = UDim2.new(1, -4, 0, 8)
 
-                    if not ElementToggle.Enabled and not ElementToggle.Locked then
+                    if not ElementToggle.Value and not ElementToggle.Locked then
                         ButtonFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
                         ButtonFrame.TextTransparency = 0.5
                     end
                 end)
     
                 ButtonFrame.MouseButton1Click:Connect(function()
-                    ElementToggle:Set(not ElementToggle.Enabled)
+                    ElementToggle:Set(not ElementToggle.Value)
                 end)
 
                 ButtonFrame.MouseButton2Click:Connect(function()
@@ -2879,7 +2870,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                         if ElementToggle.Mode == "Hold" then
                             ElementToggle:Set(true) 
                         else
-                            ElementToggle:Set(not ElementToggle.Enabled)
+                            ElementToggle:Set(not ElementToggle.Value)
                         end
                     end
                 end))
@@ -2895,7 +2886,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                     end
                 end))
 
-                ElementToggle:Set(ElementToggle.Enabled)
+                ElementToggle:Set(ElementToggle.Value)
                 ElementToggle:SetKeybind(ElementToggle.Keybind)
 
                 setmetatable(ElementToggle, BaseComponents)
