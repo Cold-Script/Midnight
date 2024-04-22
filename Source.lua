@@ -676,6 +676,7 @@ local BaseComponents = {}  do
 
         Create("UIPadding", {
             PaddingBottom = UDim.new(0, 6),
+            PaddingRight = UDim.new(0, 36),
             PaddingTop = UDim.new(0, 6),
             Parent = ToggleText
         })
@@ -864,20 +865,14 @@ local BaseComponents = {}  do
             AnchorPoint = Vector2.new(1, 0),
             BackgroundTransparency = 1,
             FontFace = regularFont,
-            Position = UDim2.new(1, 0, 0, 2),
-            Size = UDim2.fromOffset(48, 30),
+            Position = UDim2.new(1, 0, 0, 8),
+            Size = UDim2.fromOffset(48, 18),
             Text = "100",
             TextColor3 = Color3.new(1, 1, 1),
             TextScaled = true,
             TextTransparency = 0.5,
             TextXAlignment = Enum.TextXAlignment.Right,
             Parent = SliderHolder
-        })
-
-        Create("UIPadding", {
-            PaddingBottom = UDim.new(0, 6),
-            PaddingTop = UDim.new(0, 6),
-            Parent = SliderValue
         })
 
         --// Locked Icon \\--
