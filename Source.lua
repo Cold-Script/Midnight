@@ -2,7 +2,7 @@
     Credits:
     - Vape V4: Inspiration
     - Orion: Slider (Round)
-    - Linoria: Dropdown, ColorPicker & Save Manager
+    - Linoria: Dropdown, ColorPicker and Save Manager
     - Upio: Helped with Save Manager and GetKeybindFromString
 
     Feel free to use the code
@@ -96,6 +96,7 @@ export type TextboxOptions = {
 export type DropdownOptions ={
     Name: string,
     Flag: string,
+    AllowNull: boolean,
     Multi: boolean,
     Values: table,
     Callback: (NewValue: table, OldValue: table) -> ()
@@ -1268,11 +1269,14 @@ local BaseComponents = {}  do
         --// Dropdown Table \\--
         local Dropdown = {
             Buttons = {},
+            FinalText = "",
             Locked = false,
             Hovering = false,
             Opened = false,
 
+            AllowNull = true,
             Multi = options.Multi or false,
+            Name = options.Name or "Dropdown",
             Value = options.Multi and {} or nil,
             Values = options.Values or {},
             
@@ -1343,8 +1347,9 @@ local BaseComponents = {}  do
 
                 do
                     Button.MouseButton1Click:Connect(function()
-                        if Dropdown.Locked then return end
-                        local oldValue = Dropdown.Multi and Dropdown.Value[value] or Dropdown.Value
+                        if Dropdown.Locked or (selected and Dropdown:GetSelectedValues() == 1 and not Dropdown.AllowNull) then return end
+                        
+                        local oldValue = Dropdown.Value
                         selected = not selected
 
                         if Dropdown.Multi then
@@ -1360,9 +1365,7 @@ local BaseComponents = {}  do
                         Table:UpdateButton()
                         Dropdown:Update()
 
-                        if (Dropdown.Multi and Dropdown.Value[value] or Dropdown.Value) ~= oldValue then
-                            Midnight:SafeCallback(options.Callback, Dropdown.Value, oldValue)
-                        end
+                        Midnight:SafeCallback(options.Callback, Dropdown.Value, oldValue)
                     end)
 
                     Table:UpdateButton()
@@ -1372,6 +1375,20 @@ local BaseComponents = {}  do
                 Dropdown.Buttons[value] = Table
             end
         end
+        
+        function Dropdown:GetSelectedValues()
+            if Dropdown.Multi then
+                local values = {}
+
+                for valueName, _ in pairs(Dropdown.Value) do
+                    table.insert(values, valueName)
+                end
+
+                return #values
+            else
+                return Dropdown.Value and 1 or 0
+            end
+        end
 
         function Dropdown:SetValue(newValue)
             local oldValue = Dropdown.Value
@@ -1379,9 +1396,9 @@ local BaseComponents = {}  do
             if Dropdown.Multi then
                 local valueTable = {}
 
-                for valueName, valueBool in pairs(newValue) do
+                for _, valueName in pairs(newValue) do
                     if table.find(Dropdown.Values, valueName) then
-                        valueTable[valueName] = valueBool
+                        valueTable[valueName] = true
                     end
                 end
 
@@ -1433,7 +1450,7 @@ local BaseComponents = {}  do
                 finalText = Dropdown.Value or ""
             end
 
-            CurrentButton.Text = finalText == "" and (options.Name or "---") or finalText
+            CurrentButton.Text = Dropdown.Name .. (finalText == "" and "" or ": ") .. finalText
         end
 
         function Dropdown:UpdateButtons()
@@ -1449,9 +1466,10 @@ local BaseComponents = {}  do
 
             if Dropdown.Opened then
                 DropdownHolder.Size = UDim2.new(1, 0, 0, 42 + OptionsListLayout.AbsoluteContentSize.Y)
-                ButtonsHolder.Size = UDim2.new(1, 0, 0, OptionsListLayout.AbsoluteContentSize.Y + 32)
+                ButtonsHolder.Size = UDim2.new(1, 0, 0, 32 + OptionsListLayout.AbsoluteContentSize.Y)
                 OptionsHolder.Visible = true
             else
+                --Dropdown:Update()
                 OptionsHolder.Visible = false
                 ButtonsHolder.Size = UDim2.new(1, 0, 0, 32)
                 DropdownHolder.Size = UDim2.new(1, 0, 0, 42)
@@ -1463,9 +1481,11 @@ local BaseComponents = {}  do
                 Midnight.Flags[options.Flag] = Dropdown
             end
 
+            if options.AllowNull == false then Dropdown.AllowNull = false end
+
             OptionsListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 if Dropdown.Opened then
-                    DropdownHolder.Size = UDim2.new(1, 0, 0, 42 + OptionsListLayout.AbsoluteContentSize.Y)
+                    DropdownHolder.Size = UDim2.new(1, 0, 0, 52 + OptionsListLayout.AbsoluteContentSize.Y)
                     ButtonsHolder.Size = UDim2.new(1, 0, 0, OptionsListLayout.AbsoluteContentSize.Y + 32)
                 end
             end)
