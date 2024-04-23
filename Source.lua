@@ -1387,8 +1387,8 @@ local BaseComponents = {}  do
             if Dropdown.Multi then
                 local valueTable = {}
 
-                for _, valueName in pairs(newValue) do
-                    if table.find(Dropdown.Values, valueName) then
+                for valueName, valueBool in pairs(newValue) do
+                    if valueBool and table.find(Dropdown.Values, valueName) then
                         valueTable[valueName] = true
                     end
                 end
