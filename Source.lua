@@ -226,11 +226,12 @@ for hue = 0, 1, 0.1 do
 end
 
 function GetKeybindFromString(string)
+    if string == "nil" then return nil end
     local keybindSplit = string.split(string, ".")
 
     table.remove(keybindSplit, 1)
 
-    keybind = Enum
+    local keybind = Enum
     for _, v in ipairs(keybindSplit) do
         keybind = keybind[v]
     end
@@ -2941,6 +2942,7 @@ function Midnight:CreateWindow(options: WindowOptions)
 
         Midnight.ToggleKeybind = UISection:AddKeyPicker({
             Name = "Toggle Keybind",
+            Flag = "ToggleKeybind",
             Keybind = Midnight.ToggleKeybind
         })
 
