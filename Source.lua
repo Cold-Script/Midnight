@@ -325,17 +325,6 @@ local function Create(class: string, properties: table): Instance
     return instance
 end
 
-local function DeepCopy(original)
-	local copy = {}
-	for k, v in pairs(original) do
-		if type(v) == "table" then
-			v = DeepCopy(v)
-		end
-		copy[k] = v
-	end
-	return copy
-end
-
 local function Round(number, factor)
     local result = math.floor(number / factor + (math.sign(number) * 0.5)) * factor
     if result < 0 then result += factor end
@@ -1350,7 +1339,8 @@ local BaseComponents = {}  do
                     Button.MouseButton1Click:Connect(function()
                         if Dropdown.Locked or (selected and Dropdown:GetSelectedValues() == 1 and not Dropdown.AllowNull) then return end
                         
-                        local oldValue = Dropdown.Multi and DeepCopy(Dropdown.Value) or Dropdown.Value
+                        local oldValue = Dropdown.Multi and table.clone(Dropdown.Value) or Dropdown.Value
+                        selected = not selected
 
                         if Dropdown.Multi then
                             Dropdown.Value[value] = selected and true or nil
@@ -1391,7 +1381,7 @@ local BaseComponents = {}  do
         end
 
         function Dropdown:SetValue(newValue)
-            local oldValue = Dropdown.Multi and DeepCopy(Dropdown.Value) or Dropdown.Value
+            local oldValue = Dropdown.Multi and table.clone(Dropdown.Value) or Dropdown.Value
 
             if Dropdown.Multi then
                 local valueTable = {}
