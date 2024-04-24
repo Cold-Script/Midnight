@@ -1340,8 +1340,7 @@ local BaseComponents = {}  do
                     Button.MouseButton1Click:Connect(function()
                         if Dropdown.Locked or (selected and Dropdown:GetSelectedValues() == 1 and not Dropdown.AllowNull) then return end
                         
-                        local oldValue = Dropdown.Value
-                        selected = not selected
+                        local oldValue = Dropdown.Multi and table.clone(Dropdown.Value) or Dropdown.Value
 
                         if Dropdown.Multi then
                             Dropdown.Value[value] = selected and true or nil
@@ -1382,7 +1381,7 @@ local BaseComponents = {}  do
         end
 
         function Dropdown:SetValue(newValue)
-            local oldValue = Dropdown.Value
+            local oldValue = Dropdown.Multi and table.clone(Dropdown.Value) or Dropdown.Value
 
             if Dropdown.Multi then
                 local valueTable = {}
@@ -1405,9 +1404,7 @@ local BaseComponents = {}  do
             Dropdown:Update()
             Dropdown:UpdateButtons()
 
-            if Dropdown.Value ~= oldValue then
-                Midnight:SafeCallback(options.Callback, Dropdown.Value, oldValue)
-            end
+            Midnight:SafeCallback(options.Callback, Dropdown.Value, oldValue)
         end
 
         function Dropdown:SetValues(newValues)
@@ -1460,7 +1457,6 @@ local BaseComponents = {}  do
                 ButtonsHolder.Size = UDim2.new(1, 0, 0, 32 + OptionsListLayout.AbsoluteContentSize.Y)
                 OptionsHolder.Visible = true
             else
-                --Dropdown:Update()
                 OptionsHolder.Visible = false
                 ButtonsHolder.Size = UDim2.new(1, 0, 0, 32)
                 DropdownHolder.Size = UDim2.new(1, 0, 0, 42)
