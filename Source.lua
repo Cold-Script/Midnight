@@ -2955,7 +2955,7 @@ function Midnight:CreateWindow(options: WindowOptions)
         SaveSection:AddDivider()
 
         SaveSection:AddButton({
-            Name = "Save Config",
+            Name = "Create Config",
             Callback = function()
                 local name = configName.Text
                 if name:gsub(" ", "") == "" then return Midnight:Notify("Config Name can not be empty") end
@@ -2963,11 +2963,11 @@ function Midnight:CreateWindow(options: WindowOptions)
                 local success, error = SaveConfig(name)
 
                 if not success then
-                    return Midnight:Notify(string.format("Failed to save config: %s", name))
+                    return Midnight:Notify(string.format("Failed to create config: %s", name))
                 end
 
                 configList:SetValues(GetSavedConfigs())
-                Midnight:Notify(string.format("Saved config: %s", name))
+                Midnight:Notify(string.format("Created config: %s", name))
             end
         })
 
@@ -2983,6 +2983,22 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end
 
                 Midnight:Notify(string.format("Loaded config: %s", name))
+            end
+        })
+
+        SaveSection:AddButton({
+            Name = "Overwrite Config",
+            DoubleClick = true,
+            Callback = function()
+                local name = configList.Value
+
+                local success, error = SaveConfig(name)
+
+                if not success then
+                    return Midnight:Notify(string.format("Failed to overwrite config: %s", name))
+                end
+
+                Midnight:Notify(string.format("Overwrote config: %s", name))
             end
         })
 
