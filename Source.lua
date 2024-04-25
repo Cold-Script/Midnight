@@ -2971,7 +2971,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             Name = "Load Config",
             Callback = function()
                 local name = configList.Value
-                if name == nil then return Midnight:Notify("Select a config to load") end
+                if not name then return Midnight:Notify("Select a config to load") end
 
                 local success, error = LoadConfig(name)
 
@@ -2988,7 +2988,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             DoubleClick = true,
             Callback = function()
                 local name = configList.Value
-                if name == nil then return Midnight:Notify("Select a config to overwrite") end
+                if not name then return Midnight:Notify("Select a config to overwrite") end
 
                 local success, error = SaveConfig(name)
 
@@ -3004,7 +3004,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             Name = "Set as Autoload",
             Callback = function()
                 local name = configList.Value
-                if name == nil then return Midnight:Notify("Select a config to autoload") end
+                if not name then return Midnight:Notify("Select a config to autoload") end
 
                 Midnight:SetAutoloadConfig(name)
                 Midnight:Notify(string.format("Set %s to autoload", name))
