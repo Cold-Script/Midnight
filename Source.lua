@@ -28,7 +28,6 @@ local Midnight = {
     Opened = false,
 
     SaveFolder = nil,
-    SaveName = tostring(game.PlaceId),
 
     LocalPlayer = Players.LocalPlayer,
 
@@ -240,7 +239,7 @@ function GetKeybindFromString(string)
 end
 
 local function CheckSaveFolder()
-    if Midnight.SaveFolder == nil or Midnight.SaveName == nil then return false end
+    if Midnight.SaveFolder == nil then return false end
 
     if not isfolder(Midnight.SaveFolder) then
         makefolder(Midnight.SaveFolder)
@@ -254,9 +253,8 @@ local function CheckSaveFolder()
 end
 
 local function SaveConfig(name)
-    if not CheckSaveFolder() then return false, "SaveFolder or SaveName is nil" end
-
-    name = name or Midnight.SaveName
+    if not CheckSaveFolder() then return false, "SaveFolder is nil" end
+    if name:gsub(" ", "") == "" then return Midnight:Notify("Config Name can't be empty") end
 
     local data = {}
     for flag, value in pairs(Midnight.Flags) do
@@ -270,9 +268,8 @@ local function SaveConfig(name)
 end
 
 local function LoadConfig(name)
-    if not CheckSaveFolder() then return false, "SaveFolder or SaveName is nil" end
-
-    name = name or Midnight.SaveName
+    if not CheckSaveFolder() then return false, "SaveFolder is nil" end
+    if name:gsub(" ", "") == "" then return Midnight:Notify("Config Name can't be empty") end
 
     local file = Midnight.SaveFolder .. "/configs/" .. name .. ".json"
     if not isfile(file) then 
@@ -289,7 +286,7 @@ local function LoadConfig(name)
 end
 
 local function GetSavedConfigs()
-    if not CheckSaveFolder() then return false, "SaveFolder or SaveName is nil" end
+    if not CheckSaveFolder() then return false, "SaveFolder is nil" end
 
     local path = Midnight.SaveFolder .. "/configs"
     local configsList = listfiles(path)
@@ -2076,7 +2073,6 @@ end
 
 function Midnight:CreateWindow(options: WindowOptions)
     Midnight.SaveFolder = options.SaveFolder or "MidnightLibrary"
-    Midnight.SaveName = options.SaveName or tostring(game.PlaceId)
     Midnight.ToggleKeybind = options.ToggleKeybind or Enum.KeyCode.RightShift
 
     if options.Blur ~= false then
@@ -2958,7 +2954,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             Name = "Create Config",
             Callback = function()
                 local name = configName.Text
-                if name:gsub(" ", "") == "" then return Midnight:Notify("Config Name can not be empty") end
+                if name:gsub(" ", "") == "" then return Midnight:Notify("Config Name can't be empty") end
 
                 local success, error = SaveConfig(name)
 
@@ -2975,6 +2971,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             Name = "Load Config",
             Callback = function()
                 local name = configList.Value
+                if name == nil then return Midnight:Notify("Select a config to load") end
 
                 local success, error = LoadConfig(name)
 
@@ -2991,6 +2988,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             DoubleClick = true,
             Callback = function()
                 local name = configList.Value
+                if name == nil then return Midnight:Notify("Select a config to overwrite") end
 
                 local success, error = SaveConfig(name)
 
@@ -3006,6 +3004,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             Name = "Set as Autoload",
             Callback = function()
                 local name = configList.Value
+                if name == nil then return Midnight:Notify("Select a config to autoload") end
 
                 Midnight:SetAutoloadConfig(name)
                 Midnight:Notify(string.format("Set %s to autoload", name))
