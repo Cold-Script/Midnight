@@ -3198,4 +3198,4 @@ function Midnight:Unload()
 end
 
 
-return Midnight
+return Midnight, Midnight.Flags
