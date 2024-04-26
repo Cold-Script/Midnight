@@ -151,6 +151,7 @@ local parser = {
         Load = function(flag, data)
             if Midnight.Flags[flag] then
                 Midnight.Flags[flag]:Set(data.Value)
+                print("it yields????????")
                 Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
                 Midnight.Flags[flag].Mode = data.Mode
             end
