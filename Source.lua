@@ -2759,7 +2759,8 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end
             end
 
-            function ElementToggle:SetKeybind(keybind: Enum.KeyCode | Enum.UserInputType, picking)                
+            function ElementToggle:SetKeybind(keybind: Enum.KeyCode | Enum.UserInputType, picking) 
+                print("Called SetKeybind")               
                 ElementToggle.Keybind = keybind
 
                 ElementToggle:UpdateKeybind(ElementToggle.Keybind, picking)
