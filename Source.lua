@@ -150,9 +150,8 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Value)
-                print("it yields????????")
-                Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
+                task.spawn(Midnight.Flags[flag].Set, data.Value)
+                task.spawn(Midnight.Flags[flag].SetKeybind, data.Keybind)
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -163,7 +162,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Value)
+                task.spawn(Midnight.Flags[flag].Set, data.Value)
             end
         end
     },
@@ -173,7 +172,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Value)
+                task.spawn(Midnight.Flags[flag].Set, data.Value)
             end
         end
     },
@@ -183,7 +182,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:Set(data.Text)
+                task.spawn(Midnight.Flags[flag].Set, data.Text)
             end
         end
     },
@@ -193,7 +192,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:SetValue(data.Value)
+                task.spawn(Midnight.Flags[flag].SetValue, data.Value)
             end
         end
     },
@@ -203,7 +202,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
+                task.spawn(Midnight.Flags[flag].SetKeybind, data.Keybind)
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -214,7 +213,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:SetColor(Color3.fromHex(data.Color))
+                task.spawn(Midnight.Flags[flag].SetColor, data.Color)
             end
         end
     }
@@ -227,8 +226,6 @@ end
 
 function GetKeybindFromString(string)
     if string == "nil" then return nil end
-    print("getting string:", string)
-
     local keybindSplit = string.split(string, ".")
 
     table.remove(keybindSplit, 1)
@@ -2760,8 +2757,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end
             end
 
-            function ElementToggle:SetKeybind(keybind: Enum.KeyCode | Enum.UserInputType, picking) 
-                print("Called SetKeybind on ElementToggle:", options.Name, "with keybind:", keybind)               
+            function ElementToggle:SetKeybind(keybind: Enum.KeyCode | Enum.UserInputType, picking)        
                 ElementToggle.Keybind = keybind
 
                 ElementToggle:UpdateKeybind(ElementToggle.Keybind, picking)
