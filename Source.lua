@@ -151,7 +151,7 @@ local parser = {
         Load = function(flag, data)
             if Midnight.Flags[flag] then
                 task.spawn(function() Midnight.Flags[flag]:Set(data.Value) end)
-                Midnight.Flags[flag]:SetKeybind(data.Keybind)
+                Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -202,7 +202,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:SetKeybind(data.Keybind)
+                Midnight.Flags[flag]:SetKeybind(GetKeybindFromString(data.Keybind))
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -213,7 +213,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                Midnight.Flags[flag]:SetColor(data.Color)
+                Midnight.Flags[flag]:SetColor(Color3.fromHex(data.Color))
             end
         end
     }
