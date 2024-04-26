@@ -226,6 +226,8 @@ end
 
 function GetKeybindFromString(string)
     if string == "nil" then return nil end
+    print("getting string:", string)
+
     local keybindSplit = string.split(string, ".")
 
     table.remove(keybindSplit, 1)
@@ -1113,7 +1115,6 @@ local BaseComponents = {}  do
             Box.Text = Textbox.Text
             if Box.Text ~= oldText then
                 Midnight:SafeCallback(options.Callback, Box.Text, oldText)
-                
             end
         end
 
@@ -1147,7 +1148,6 @@ local BaseComponents = {}  do
 
                 if Box.Text ~= oldText then
                     Midnight:SafeCallback(options.Callback, Box.Text, oldText)
-                    
                 end 
             end)
         end
