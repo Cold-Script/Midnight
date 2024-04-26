@@ -150,8 +150,8 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].Set, data.Value)
-                task.spawn(Midnight.Flags[flag].SetKeybind, data.Keybind)
+                task.spawn(function() Midnight.Flags[flag]:Set(data.Value) end)
+                Midnight.Flags[flag]:SetKeybind(data.Keybind)
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -162,7 +162,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].Set, data.Value)
+                Midnight.Flags[flag]:Set(data.Value)
             end
         end
     },
@@ -172,7 +172,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].Set, data.Value)
+                Midnight.Flags[flag]:Set(data.Value)
             end
         end
     },
@@ -182,7 +182,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].Set, data.Text)
+                Midnight.Flags[flag]:Set(data.Text)
             end
         end
     },
@@ -192,7 +192,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].SetValue, data.Value)
+                Midnight.Flags[flag]:SetValue(data.Value)
             end
         end
     },
@@ -202,7 +202,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].SetKeybind, data.Keybind)
+                Midnight.Flags[flag]:SetKeybind(data.Keybind)
                 Midnight.Flags[flag].Mode = data.Mode
             end
         end
@@ -213,7 +213,7 @@ local parser = {
         end,
         Load = function(flag, data)
             if Midnight.Flags[flag] then
-                task.spawn(Midnight.Flags[flag].SetColor, data.Color)
+                Midnight.Flags[flag]:SetColor(data.Color)
             end
         end
     }
