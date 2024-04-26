@@ -1926,9 +1926,7 @@ local BaseComponents = {}  do
 
         do
             local colorDragging = false
-            local colorInput
             local hueDragging = false
-            local hueInput
 
             if options.Flag then
                 Midnight.Flags[options.Flag] = ColorPicker
@@ -1984,12 +1982,6 @@ local BaseComponents = {}  do
                 end
             end)
 
-            ColorImage.InputChanged:Connect(function(input: InputObject)
-                if colorDragging and input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch then
-                    colorInput = input
-                end
-            end)
-
             ColorHue.InputBegan:Connect(function(input: InputObject)
                 if not ColorPicker.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     hueDragging = true
@@ -2010,14 +2002,8 @@ local BaseComponents = {}  do
                 end
             end)
 
-            ColorHue.InputChanged:Connect(function(input: InputObject)
-                if hueDragging and input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch then
-                    hueInput = input
-                end
-            end)
-
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if input == colorInput and colorDragging then
+                if colorDragging then
                     local minX = ColorImage.AbsolutePosition.X
                     local maxX = minX + ColorImage.AbsoluteSize.X
                     local mouseX = math.clamp(input.Position.X, minX, maxX)
@@ -2030,7 +2016,7 @@ local BaseComponents = {}  do
                     ColorPicker.Vib = 1 - (mouseY - minY) / (maxY- minY)
 
                     ColorPicker:Update()
-                elseif input == hueInput and hueDragging then
+                elseif hueDragging then
                     local minY = ColorHue.AbsolutePosition.Y
                     local maxY = minY + ColorHue.AbsoluteSize.Y
                     local mouseY = math.clamp(input.Position.Y, minY, maxY)
