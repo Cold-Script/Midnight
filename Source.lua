@@ -1013,12 +1013,15 @@ local BaseComponents = {}  do
             SliderBar.InputBegan:Connect(function(input: InputObject)
                 if not Slider.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     Slider.Dragging = true
-                end
-            end)
 
-            SliderBar.InputEnded:Connect(function(input: InputObject)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    Slider.Dragging = false
+                    local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+                    Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
+
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            Slider.Dragging = false
+                        end
+                    end)
                 end
             end)
 
@@ -1857,6 +1860,8 @@ local BaseComponents = {}  do
 
         --// ColorPicker Table \\--
         local ColorPicker = {
+            DraggingColor = false,
+            DraggingHue = false,
             Locked = false,
             Hovering = false,
             Opened = false,
@@ -1925,16 +1930,13 @@ local BaseComponents = {}  do
         end
 
         do
-            local colorDragging = false
-            local hueDragging = false
-
             if options.Flag then
                 Midnight.Flags[options.Flag] = ColorPicker
             end
 
             LockedHover.MouseEnter:Connect(function()
-                colorDragging = false
-                hueDragging = false
+                ColorPicker.DraggingColor = false
+                ColorPicker.DraggingHue = false
 
                 ColorIndicator.Visible = false
                 LockedIcon.Visible = true
@@ -1959,7 +1961,7 @@ local BaseComponents = {}  do
 
             ColorImage.InputBegan:Connect(function(input: InputObject)
                 if not ColorPicker.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    colorDragging = true
+                    ColorPicker.DraggingColor = true
 
                     local minX = ColorImage.AbsolutePosition.X
                     local maxX = minX + ColorImage.AbsoluteSize.X
@@ -1976,7 +1978,7 @@ local BaseComponents = {}  do
 
                     input.Changed:Connect(function()
                         if input.UserInputState == Enum.UserInputState.End then
-                            colorDragging = false
+                            ColorPicker.DraggingColor = false
                         end
                     end)
                 end
@@ -1984,7 +1986,7 @@ local BaseComponents = {}  do
 
             ColorHue.InputBegan:Connect(function(input: InputObject)
                 if not ColorPicker.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    hueDragging = true
+                    ColorPicker.DraggingHue = true
 
                     local minY = ColorImage.AbsolutePosition.Y
                     local maxY = minY + ColorImage.AbsoluteSize.Y
@@ -1996,14 +1998,14 @@ local BaseComponents = {}  do
 
                     input.Changed:Connect(function()
                         if input.UserInputState == Enum.UserInputState.End then
-                            hueDragging = false
+                            ColorPicker.DraggingHue = false
                         end
                     end)
                 end
             end)
 
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if colorDragging then
+                if ColorPicker.DraggingColor then
                     local minX = ColorImage.AbsolutePosition.X
                     local maxX = minX + ColorImage.AbsoluteSize.X
                     local mouseX = math.clamp(input.Position.X, minX, maxX)
@@ -2016,7 +2018,7 @@ local BaseComponents = {}  do
                     ColorPicker.Vib = 1 - (mouseY - minY) / (maxY- minY)
 
                     ColorPicker:Update()
-                elseif hueDragging then
+                elseif ColorPicker.DraggingHue then
                     local minY = ColorHue.AbsolutePosition.Y
                     local maxY = minY + ColorHue.AbsoluteSize.Y
                     local mouseY = math.clamp(input.Position.Y, minY, maxY)
