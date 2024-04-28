@@ -815,6 +815,7 @@ local BaseComponents = {}  do
             end)
 
             ToggleButton.MouseButton1Click:Connect(function()
+                if Toggle.Locked then return end
                 Toggle:Set(not Toggle.Value)
             end)
 
@@ -2580,6 +2581,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end)
     
                 ButtonFrame.MouseButton1Click:Connect(function()
+                    if ElementButton.Locked then return end
                     ElementButton.TimesClicked += 1
                     Midnight:SafeCallback(options.Callback, ElementButton.TimesClicked)
                 end)
@@ -2805,6 +2807,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end)
     
                 ButtonFrame.MouseButton1Click:Connect(function()
+                    if ElementToggle.Locked then return end
                     ElementToggle:Set(not ElementToggle.Value)
                 end)
 
