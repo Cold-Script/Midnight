@@ -751,10 +751,6 @@ local BaseComponents = {}  do
             Type = "Toggle"
         }
 
-        function Toggle:Activate()
-            Toggle:Set(not Toggle.Value)
-        end
-
         function Toggle:SetLocked(locked: boolean)
             Toggle.Locked = locked
             
@@ -2843,7 +2839,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end)
 
                 Midnight:AddConnection(UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessedEvent)
-                    if (input.KeyCode == ElementToggle.Keybind or input.UserInputType == ElementToggle.Keybind) and not ElementToggle.Picking and not gameProcessedEvent then
+                    if not ElementToggle.Locked and (input.KeyCode == ElementToggle.Keybind or input.UserInputType == ElementToggle.Keybind) and not ElementToggle.Picking and not gameProcessedEvent then
                         if ElementToggle.Mode == "Hold" then
                             ElementToggle:Set(true) 
                         else
@@ -2853,7 +2849,7 @@ function Midnight:CreateWindow(options: WindowOptions)
                 end))
 
                 Midnight:AddConnection(UserInputService.InputEnded:Connect(function(input: InputObject)
-                    if (input.KeyCode == ElementToggle.Keybind or input.UserInputType == ElementToggle.Keybind) and not ElementToggle.Picking then
+                    if not ElementToggle.Locked and (input.KeyCode == ElementToggle.Keybind or input.UserInputType == ElementToggle.Keybind) and not ElementToggle.Picking then
                         if ElementToggle.Mode == "Hold" then
                             ElementToggle:Set(false)
                         end
