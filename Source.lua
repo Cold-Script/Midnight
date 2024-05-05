@@ -44,6 +44,7 @@ end
 
 export type WindowOptions = {
     Title: string,
+    Blur: boolean,
     NotifySound: number,
     NotifyVolume: number,
     SaveFolder: string,
@@ -1028,14 +1029,13 @@ local BaseComponents = {}  do
                 end
             end)
 
-            SliderBar.InputChanged:Connect(function(input: InputObject)
-                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-                    dragInput = input
-                end
-            end)
-
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if Slider.Dragging and input == dragInput and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                if not Midnight.Opened then 
+                    Slider.Dragging = false
+                    return
+                end
+
+                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                     local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
                 end
@@ -1939,8 +1939,6 @@ local BaseComponents = {}  do
         end
 
         do
-            local dragInput
-
             if options.Flag then
                 Midnight.Flags[options.Flag] = ColorPicker
             end
@@ -1995,12 +1993,6 @@ local BaseComponents = {}  do
                 end
             end)
 
-            ColorImage.InputChanged:Connect(function(input: InputObject)
-                if ColorPicker.DraggingColor and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-                    dragInput = input
-                end
-            end)
-
             ColorHue.InputBegan:Connect(function(input: InputObject)
                 if not ColorPicker.Locked and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                     ColorPicker.DraggingHue = true
@@ -2015,20 +2007,18 @@ local BaseComponents = {}  do
 
                     input.Changed:Connect(function()
                         if input.UserInputState == Enum.UserInputState.End then
-                            ColorPicker.DraggingHue = false
+                            ColorPicker.DragginHue = false
                         end
                     end)
                 end
             end)
 
-            ColorHue.InputChanged:Connect(function(input: InputObject)
-                if ColorPicker.DraggingHue and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-                    dragInput = input
-                end
-            end)
-
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if not input == dragInput then return end
+                if not Midnight.Opened then 
+                    ColorPicker.DraggingColor = false 
+                    ColorPicker.DraggingHue = false
+                    return
+                end
 
                 if ColorPicker.DraggingColor then
                     local minX = ColorImage.AbsolutePosition.X
