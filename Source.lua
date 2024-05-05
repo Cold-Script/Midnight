@@ -23,6 +23,8 @@ local Midnight = {
     Tabs = {},
 
     NotifySound = 4590657391,
+    NotifyVolume = 2,
+
     UISize = 220,
     ToggleKeybind = Enum.KeyCode.RightShift,
     Opened = false,
@@ -42,6 +44,8 @@ end
 
 export type WindowOptions = {
     Title: string,
+    NotifySound: number,
+    NotifyVolume: number,
     SaveFolder: string,
     ToggleKeybind: Enum.KeyCode
 }
@@ -339,23 +343,23 @@ local function MakeDraggable(instance: Instance, main: Instance)
             dragging = true
             mousePos = input.Position
             framePos = main.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
 
     instance.InputChanged:Connect(function(input: InputObject)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch then
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
             dragInput = input
         end
     end)
 
-    instance.InputEnded:Connect(function(input: InputObject)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-            dragging = false
-        end
-    end)
-
     Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-        if input == dragInput and dragging then
+        if dragging and input == dragInput then
             local delta = input.Position - mousePos
             main.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
         end
@@ -973,6 +977,8 @@ local BaseComponents = {}  do
         end
 
         do
+            local dragInput
+
             if options.Flag then
                 Midnight.Flags[options.Flag] = Slider
             end
@@ -1013,17 +1019,23 @@ local BaseComponents = {}  do
 
                     local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
+
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            Slider.Dragging = false
+                        end
+                    end)
                 end
             end)
 
-            SliderBar.InputEnded:Connect(function(input: InputObject)
-                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                    Slider.Dragging = false
+            SliderBar.InputChanged:Connect(function(input: InputObject)
+                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+                    dragInput = input
                 end
             end)
 
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                if Slider.Dragging and input == dragInput and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                     local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
                 end
@@ -1927,6 +1939,8 @@ local BaseComponents = {}  do
         end
 
         do
+            local dragInput
+
             if options.Flag then
                 Midnight.Flags[options.Flag] = ColorPicker
             end
@@ -1972,12 +1986,18 @@ local BaseComponents = {}  do
                     ColorPicker.Vib = 1 - (mouseY - minY) / (maxY- minY)
 
                     ColorPicker:Update()
+
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            ColorPicker.DraggingColor = false
+                        end
+                    end)
                 end
             end)
 
-            ColorImage.InputEnded:Connect(function(input: InputObject)
-                if ColorPicker.DraggingColor and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                    ColorPicker.DraggingColor = false
+            ColorImage.InputChanged:Connect(function(input: InputObject)
+                if ColorPicker.DraggingColor and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+                    dragInput = input
                 end
             end)
 
@@ -1992,16 +2012,24 @@ local BaseComponents = {}  do
                     ColorPicker.Hue = ((mouseY - minY)) / (maxY - minY)
 
                     ColorPicker:Update()
+
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            ColorPicker.DraggingHue = false
+                        end
+                    end)
                 end
             end)
 
-            ColorHue.InputEnded:Connect(function(input: InputObject)
-                if ColorPicker.DraggingHue and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                    ColorPicker.DraggingHue = false
+            ColorHue.InputChanged:Connect(function(input: InputObject)
+                if ColorPicker.DraggingHue and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+                    dragInput = input
                 end
             end)
 
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
+                if not input == dragInput then return end
+
                 if ColorPicker.DraggingColor then
                     local minX = ColorImage.AbsolutePosition.X
                     local maxX = minX + ColorImage.AbsoluteSize.X
@@ -2055,6 +2083,9 @@ function Midnight:AddConnection(connection)
 end
 
 function Midnight:CreateWindow(options: WindowOptions)
+    Midnight.NotifySound = options.NotifySound or 4590657391
+    Midnight.NotifyVolume = options.NotifyVolume or 2
+
     Midnight.SaveFolder = options.SaveFolder or "MidnightLibrary"
     Midnight.ToggleKeybind = options.ToggleKeybind or Enum.KeyCode.RightShift
 
@@ -2910,6 +2941,24 @@ function Midnight:CreateWindow(options: WindowOptions)
 
 
         --// UI Section \\--
+        Midnight.ToggleKeybind = UISection:AddKeyPicker({
+            Name = "Toggle Keybind",
+            Flag = "_ToggleKeybind",
+            Keybind = Midnight.ToggleKeybind
+        })
+
+        UISection:AddSlider({
+            Name = "Notify Volume",
+            Flag = "_NotifyVolume",
+            Min = 0,
+            Max = 4,
+            Increment = 0.5,
+            Value = Midnight.NotifyVolume,
+            Callback = function(value)
+                Midnight.NotifyVolume = value
+            end
+        })
+
         UISection:AddButton({
             Name = "Unload",
             Callback = function()
@@ -2917,11 +2966,7 @@ function Midnight:CreateWindow(options: WindowOptions)
             end
         })
 
-        Midnight.ToggleKeybind = UISection:AddKeyPicker({
-            Name = "Toggle Keybind",
-            Flag = "ToggleKeybind",
-            Keybind = Midnight.ToggleKeybind
-        })
+        
 
         --// Save Section \\--
         local configName = SaveSection:AddTextbox({
@@ -3098,7 +3143,7 @@ function Midnight:Notify(text: string, duration: number, soundId: number)
     if soundId then
         Create("Sound", {
             SoundId = "rbxassetid://" .. soundId,
-            Volume = 2,
+            Volume = Midnight.NotifyVolume,
             PlayOnRemove = true,
             Parent = CoreGui
         }):Destroy()
