@@ -339,18 +339,18 @@ local function MakeDraggable(instance: Instance, main: Instance)
             dragging = true
             mousePos = input.Position
             framePos = main.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
         end
     end)
 
     instance.InputChanged:Connect(function(input: InputObject)
         if input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch then
             dragInput = input
+        end
+    end)
+
+    instance.InputEnded:Connect(function(input: InputObject)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+            dragging = false
         end
     end)
 
@@ -1008,22 +1008,22 @@ local BaseComponents = {}  do
             end)
 
             SliderBar.InputBegan:Connect(function(input: InputObject)
-                if not Slider.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if not Slider.Locked and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                     Slider.Dragging = true
 
                     local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
+                end
+            end)
 
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            Slider.Dragging = false
-                        end
-                    end)
+            SliderBar.InputEnded:Connect(function(input: InputObject)
+                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    Slider.Dragging = false
                 end
             end)
 
             Midnight:AddConnection(UserInputService.InputChanged:Connect(function(input: InputObject)
-                if Slider.Dragging and input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                if Slider.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                     local percentage = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
                     Slider:Set(Slider.Min + ((Slider.Max - Slider.Min) * percentage))
                 end
@@ -1957,7 +1957,7 @@ local BaseComponents = {}  do
             end)
 
             ColorImage.InputBegan:Connect(function(input: InputObject)
-                if not ColorPicker.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if not ColorPicker.Locked and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                     ColorPicker.DraggingColor = true
 
                     local minX = ColorImage.AbsolutePosition.X
@@ -1972,17 +1972,17 @@ local BaseComponents = {}  do
                     ColorPicker.Vib = 1 - (mouseY - minY) / (maxY- minY)
 
                     ColorPicker:Update()
+                end
+            end)
 
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            ColorPicker.DraggingColor = false
-                        end
-                    end)
+            ColorImage.InputEnded:Connect(function(input: InputObject)
+                if ColorPicker.DraggingColor and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    ColorPicker.DraggingColor = false
                 end
             end)
 
             ColorHue.InputBegan:Connect(function(input: InputObject)
-                if not ColorPicker.Locked and input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if not ColorPicker.Locked and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                     ColorPicker.DraggingHue = true
 
                     local minY = ColorImage.AbsolutePosition.Y
@@ -1992,12 +1992,12 @@ local BaseComponents = {}  do
                     ColorPicker.Hue = ((mouseY - minY)) / (maxY - minY)
 
                     ColorPicker:Update()
+                end
+            end)
 
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            ColorPicker.DraggingHue = false
-                        end
-                    end)
+            ColorHue.InputEnded:Connect(function(input: InputObject)
+                if ColorPicker.DraggingHue and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    ColorPicker.DraggingHue = false
                 end
             end)
 
