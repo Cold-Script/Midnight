@@ -33,9 +33,13 @@ local Midnight = {
 
     LocalPlayer = Players.LocalPlayer,
 
-    UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled,
+    Platform = Enum.Platform.None,
+    Mobile = false,
     Studio = RunService:IsStudio()
 }
+
+pcall(function() Midnight.Platform = UserInputService:GetPlatform() end)
+Midnight.Mobile = UserInputService:GetPlatform() == Enum.Platform.Android or UserInputService:GetPlatform() == Enum.Platform.IOS
 
 if Midnight.Mobile then
     Midnight.UISize = 180
