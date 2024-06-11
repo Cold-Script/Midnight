@@ -34,7 +34,7 @@ local Midnight = {
     LocalPlayer = Players.LocalPlayer,
 
     Platform = Enum.Platform.None,
-    Mobile = false,
+    Mobile = true,
     Studio = RunService:IsStudio()
 }
 
@@ -132,7 +132,7 @@ local enabledToggleColor = Color3.fromRGB(140, 140, 140)
 
 local semiBoldFont = Font.fromId(12187365364, Enum.FontWeight.SemiBold)
 local mediumFont = Font.fromId(12187365364, Enum.FontWeight.Medium)
-local regularFont = Font.fromId(12187365364)
+local regularFont = Enum.Font.Code
 
 local keyCodesName = {
     [Enum.KeyCode.Insert] = "Ins",
